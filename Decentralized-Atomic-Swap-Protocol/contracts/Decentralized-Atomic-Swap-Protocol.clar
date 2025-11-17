@@ -210,4 +210,47 @@
   )
 )
 
+;; Update fee percentage
+(define-public (update-fee-percentage (new-fee uint))
+  (begin
+    (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-AUTHORIZED)
+    (asserts! (<= new-fee u1000) ERR-INVALID-AMOUNT) ;; Max 10%
+    (ok (var-set fee-percentage new-fee))
+  )
+)
+
+;; Transfer admin role
+(define-public (transfer-admin (new-admin principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-AUTHORIZED)
+    (ok (var-set admin new-admin))
+  )
+)
+
+;; ----- Read-Only Functions -----
+
+;; Get swap details
+(define-read-only (get-swap-details (swap-id (buff 32)))
+  (map-get? swaps { swap-id: swap-id })
+)
+
+;; Get liquidity provider details
+(define-read-only (get-provider-details (provider principal))
+  (map-get? liquidity-providers { provider: provider })
+)
+
+;; Get protocol statistics
+(define-read-only (get-protocol-stats (stat-type (string-ascii 20)))
+  (map-get? protocol-stats { stat-type: stat-type })
+)
+
+;; Get current protocol version
+(define-read-only (get-protocol-version)
+  (var-get protocol-version)
+)
+
+;; Check if circuit breaker is active
+(define-read-only (is-circuit-breaker-active)
+  (var-get circuit-breaker-active)
+)
 
